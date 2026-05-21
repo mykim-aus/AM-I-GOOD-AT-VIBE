@@ -2,7 +2,7 @@
   "name": "amigoodatvibe",
   "displayName": "AM I GOOD AT VIBE",
   "description": "100% local privacy-guaranteed AI collaboration style and prompt skill diagnostic tool in your pocket. Captures Claude Code, Codex, and Gemini CLI conversations in the background and analyzes them safely within your computer's local AI session.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publisher": "amigoodatvibe",
   "license": "MIT",
   "icon": "images/icon.png",

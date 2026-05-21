@@ -319,10 +319,22 @@ test("readChatSessionFiles: missing directory returns []", () => {
 // (4c) Claude Code JSONL — ~/.claude/projects/<encoded>/<uuid>.jsonl
 // =============================================================================
 
-test("claudeCodeProjectDirName: replaces / with - byte-for-byte", () => {
+test("claudeCodeProjectDirName: replaces / with - byte-for-byte (POSIX)", () => {
   assert.equal(
     claudeCodeProjectDirName("/Users/me/proj"),
     "-Users-me-proj"
+  );
+});
+
+test("claudeCodeProjectDirName: replaces \\ and : (Windows paths)", () => {
+  // On POSIX, path.resolve leaves the Windows-style path's tail intact
+  // (backslashes aren't separators here, so they pass through as bytes),
+  // letting us assert the suffix encodes the way Claude Code's CLI does
+  // on Windows: `C:\Users\me\proj` → `C--Users-me-proj`.
+  const encoded = claudeCodeProjectDirName("C:\\Users\\me\\proj");
+  assert.ok(
+    encoded.endsWith("C--Users-me-proj"),
+    `expected encoded path to end with "C--Users-me-proj", got: ${encoded}`
   );
 });
 

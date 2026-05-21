@@ -293,8 +293,10 @@ export function parseChatSessionFile(value: unknown): ExtractedTurn[] {
 /**
  * Claude Code (Anthropic's official CLI / VS Code extension) writes one
  * line-delimited JSONL file per session under
- * `~/.claude/projects/<encoded-workspace>/<uuid>.jsonl`. Encoding: workspace
- * path with `/` → `-` (a literal byte-level substitution, no escaping).
+ * `~/.claude/projects/<encoded-workspace>/<uuid>.jsonl`. Encoding is a
+ * byte-level substitution of every path separator with `-`:
+ *   POSIX   `/Users/me/proj`     → `-Users-me-proj`
+ *   Windows `C:\Users\me\proj`   → `C--Users-me-proj`  (`:` and `\` both → `-`)
  *
  * Each line is one record: `{type, message:{role, content}, timestamp,
  * sessionId, cwd, gitBranch, ...}`. Content can be a bare string or an
@@ -304,7 +306,7 @@ export function parseChatSessionFile(value: unknown): ExtractedTurn[] {
  * noisy), and tool I/O is structured data, not conversation.
  */
 export function claudeCodeProjectDirName(workspaceFsPath: string): string {
-  return path.resolve(workspaceFsPath).replace(/\//g, "-");
+  return path.resolve(workspaceFsPath).replace(/[\\/:]/g, "-");
 }
 
 /**
