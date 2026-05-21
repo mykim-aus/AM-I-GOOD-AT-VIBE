@@ -49,14 +49,12 @@ This is the **first public release**. I (the author) have only been able to veri
 
 ## 🚀 Install
 
-**The marketplace listing isn't live yet.** Until then:
+### From the VS Code Marketplace (recommended)
 
-### From a release `.vsix`
+Search **"AM I GOOD AT VIBE"** in the Extensions view, or install directly:
+👉 https://marketplace.visualstudio.com/items?itemName=amigoodatvibe.amigoodatvibe
 
-1. Download `amigoodatvibe-X.Y.Z.vsix` from the [Releases page](https://github.com/mykim-aus/AM-I-GOOD-AT-VIBE/releases).
-2. In VS Code: `Extensions: Install from VSIX…`
-
-### From source
+### From source (development)
 
 ```bash
 git clone https://github.com/mykim-aus/AM-I-GOOD-AT-VIBE.git

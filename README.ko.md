@@ -49,14 +49,12 @@ AM I GOOD AT VIBE 는 (1) VS Code 통합 터미널의 **AI CLI 대화** (Claude 
 
 ## 🚀 설치
 
-**마켓플레이스 등록은 아직 안 됐습니다.** 그 전까지는 아래 둘 중 하나로:
+### VS Code 마켓플레이스에서 (권장)
 
-### 릴리즈 `.vsix` 파일로
+VS Code 확장(Extensions) 뷰에서 **"AM I GOOD AT VIBE"** 검색하시거나, 아래 링크로 바로 설치:
+👉 https://marketplace.visualstudio.com/items?itemName=amigoodatvibe.amigoodatvibe
 
-1. [Releases 페이지](https://github.com/mykim-aus/AM-I-GOOD-AT-VIBE/releases) 에서 `amigoodatvibe-X.Y.Z.vsix` 다운로드.
-2. VS Code 명령 팔레트 → `Extensions: Install from VSIX…`
-
-### 소스에서 직접
+### 소스에서 직접 (개발용)
 
 ```bash
 git clone https://github.com/mykim-aus/AM-I-GOOD-AT-VIBE.git
