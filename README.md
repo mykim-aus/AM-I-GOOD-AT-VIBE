@@ -207,6 +207,8 @@ This is a v0.1 release with one tester (me, on one machine). **Help is wanted on
 - Cross-platform verification (Windows, Linux) — install, run, file an issue with results.
 - End-to-end testing of CLIs other than Claude Code (Codex, Gemini, aider, q chat, gh copilot, cody, cursor-agent).
 - Adding new AI CLIs — usually a one-line addition to `AI_CLI_PATTERNS` in [src/util.ts](src/util.ts).
+- **Evaluation criteria** — refine the 6 competency scores (`prompt_quality`, `context_setting`, `iteration_efficiency`, `security_awareness`, `code_review_habit`, `tool_diversity`) defined in [src/prompt.ts](src/prompt.ts). New axes, sharper rubrics, or different weights all welcome.
+- **Prompt improvements** — the analysis system prompt lives in [src/prompt.ts](src/prompt.ts). Sharper roasts, more reliable JSON output, or better language detection are great PR material.
 - Code review of [src/extension.ts](src/extension.ts) and the capture paths (this is being open-sourced for the first time — fresh eyes very welcome).
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for the full guide, including the local-first invariant every PR must preserve.

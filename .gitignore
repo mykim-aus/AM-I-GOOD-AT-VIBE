@@ -13,3 +13,6 @@ out-test/
 .DS_Store
 .vscode-test/
 *.log
+
+# Local Claude Code conventions — personal, not project policy
+CLAUDE.md
