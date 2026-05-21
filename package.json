@@ -1,0 +1,169 @@
+{
+  "name": "amigoodatvibe",
+  "displayName": "AM I GOOD AT VIBE",
+  "description": "100% local privacy-guaranteed AI collaboration style and prompt skill diagnostic tool in your pocket. Captures Claude Code, Codex, and Gemini CLI conversations in the background and analyzes them safely within your computer's local AI session.",
+  "version": "0.1.0",
+  "publisher": "amigoodatvibe",
+  "icon": "images/icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mykim-aus/AM-I-GOOD-AT-VIBE.git"
+  },
+  "engines": {
+    "vscode": "^1.93.0"
+  },
+  "categories": [
+    "Other",
+    "Education"
+  ],
+  "keywords": [
+    "claude",
+    "claude-code",
+    "codex",
+    "gemini",
+    "ai",
+    "vibe",
+    "habit",
+    "prompt",
+    "local-first",
+    "privacy"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "amigoodatvibe.analyzeHabits",
+        "title": "AM I GOOD AT VIBE: 🧠 Analyze My AI Coding Vibe",
+        "category": "AM I GOOD AT VIBE"
+      },
+      {
+        "command": "amigoodatvibe.openLog",
+        "title": "AM I GOOD AT VIBE: 📜 Open Raw Log",
+        "category": "AM I GOOD AT VIBE"
+      },
+      {
+        "command": "amigoodatvibe.clearLog",
+        "title": "AM I GOOD AT VIBE: 🗑 Clear Log",
+        "category": "AM I GOOD AT VIBE"
+      },
+      {
+        "command": "amigoodatvibe.runDiagnostics",
+        "title": "AM I GOOD AT VIBE: 🩺 Run Capture Diagnostics",
+        "category": "AM I GOOD AT VIBE"
+      },
+      {
+        "command": "amigoodatvibe.importExtensionCache",
+        "title": "AM I GOOD AT VIBE: 📥 Import IDE Extension Chat Caches",
+        "category": "AM I GOOD AT VIBE"
+      },
+      {
+        "command": "amigoodatvibe.analyzeFromClaudeLog",
+        "title": "AM I GOOD AT VIBE: 📚 Analyze From Existing Chat History",
+        "category": "AM I GOOD AT VIBE"
+      },
+      {
+        "command": "amigoodatvibe.startFresh",
+        "title": "AM I GOOD AT VIBE: 🆕 Start Fresh For This Project",
+        "category": "AM I GOOD AT VIBE"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "amigoodatvibe",
+          "title": "AM I GOOD AT VIBE",
+          "icon": "$(pulse)"
+        }
+      ]
+    },
+    "views": {
+      "amigoodatvibe": [
+        {
+          "id": "amigoodatvibe.sidebar",
+          "name": "AM I GOOD AT VIBE",
+          "type": "webview",
+          "icon": "$(pulse)",
+          "contextualTitle": "AM I GOOD AT VIBE"
+        }
+      ]
+    },
+    "chatParticipants": [
+      {
+        "id": "amigoodatvibe.chat",
+        "name": "amigoodatvibe",
+        "fullName": "AM I GOOD AT VIBE Capture",
+        "description": "100% local capture channel — when you mention @amigoodatvibe, your prompt is recorded only on your machine",
+        "isSticky": true
+      }
+    ],
+    "terminal": {
+      "profiles": [
+        {
+          "id": "amigoodatvibe.captureTerminal",
+          "title": "AM I GOOD AT VIBE Capture",
+          "icon": "$(pulse)"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "AM I GOOD AT VIBE",
+      "properties": {
+        "amigoodatvibe.localCliTool": {
+          "type": "string",
+          "default": "claude",
+          "description": "Local AI CLI command to use for vibe analysis (e.g. claude, codex, gemini). Runs only on your machine — nothing is sent to external servers."
+        },
+        "amigoodatvibe.outputLanguage": {
+          "type": "string",
+          "enum": ["auto", "english", "korean"],
+          "enumDescriptions": [
+            "Auto-detect the primary language used in the captured log (default — English or Korean only)",
+            "Force the analysis output in English",
+            "Force the analysis output in Korean"
+          ],
+          "default": "auto",
+          "description": "Language for the roast / nickname / summary output. Only English and Korean are supported. `auto` detects from the log and falls back to English."
+        },
+        "amigoodatvibe.autoCapture": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether to enable background auto-capture when VS Code starts."
+        },
+        "amigoodatvibe.maskingEnabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether to auto-mask sensitive info such as API keys, passwords, and .env values."
+        },
+        "amigoodatvibe.cliTimeoutMs": {
+          "type": "number",
+          "default": 120000,
+          "description": "Timeout for the analysis CLI execution (milliseconds)."
+        },
+        "amigoodatvibe.captureCodeChanges": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether to enable file change (diff) history capture."
+        },
+        "amigoodatvibe.logRotateBytes": {
+          "type": "number",
+          "default": 1048576,
+          "description": "Rotation threshold size for raw_history.json (bytes). Default 1MB."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "test": "tsc -p tsconfig.test.json && node --test out-test/test/*.test.js"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/vscode": "^1.93.0",
+    "typescript": "^5.4.0"
+  }
+}

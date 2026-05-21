@@ -1,0 +1,15 @@
+node_modules/
+out/
+out-test/
+
+# Build artifacts — distribute via GitHub Releases, not in the repo
+*.vsix
+
+# Local capture data (must never be committed)
+.am-i-good-at-vibe/
+.amigood/
+
+# Editor / OS
+.DS_Store
+.vscode-test/
+*.log
