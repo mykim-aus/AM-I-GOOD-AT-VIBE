@@ -2,13 +2,13 @@
 
 # 🧠 AM I GOOD AT VIBE
 
-> **A local-first VS Code extension that captures your terminal AI CLI conversations and roasts your coding vibe.**
+> **A local-first VS Code extension that captures every AI coding conversation you have — terminal CLIs and IDE chat panels alike — and roasts your coding vibe.**
 
 <p align="center">
   <img src="images/report-en.png" alt="Example vibe report — Parallel-Agent Cowboy, Lv 9 (78/100)" width="720" />
 </p>
 
-AM I GOOD AT VIBE silently records every Claude Code / Codex / Gemini CLI / aider / Copilot CLI conversation you have in the integrated terminal, plus your code changes and prompt entries — then hands the log to your own local AI CLI to produce a witty, social-media-shareable analysis: a nickname, a spicy one-line roast, six competency scores, and concrete action items.
+AM I GOOD AT VIBE silently records both your **terminal AI CLI** conversations (Claude Code, Codex, Gemini CLI, aider, Copilot CLI — captured live from the integrated terminal) *and* your **IDE chat-panel history** (Claude Code IDE, GitHub Copilot Chat, VS Code chat panel, Cursor — read directly from each tool's on-disk session store), plus your code changes and prompt entries. It then hands the log to your own local AI CLI to produce a witty, social-media-shareable analysis: a nickname, a spicy one-line roast, six competency scores, and concrete action items.
 
 **100% local. Your source code never leaves your machine.** ([audit the capture path →](src/extension.ts) · [audit the masking regex →](src/util.ts))
 
@@ -35,14 +35,15 @@ This is the **first public release**. I (the author) have only been able to veri
 | # | Feature | Notes |
 |---|---|---|
 | 1 | **Terminal AI CLI capture** | Auto-detects `claude`, `codex`, `gemini`, `aider`, `q chat`, `gh copilot`, `cody`, `cursor-agent` |
-| 2 | **Interactive REPL tracking** | Line-by-line real-time parsing of `❯` user turns and `⏺` assistant turns inside REPLs |
-| 3 | **Own chat participant** | `@amigoodatvibe` chat participant for GUI-side prompt recording |
-| 4 | **🔒 100% Capture Terminal** | Optional opt-in pseudoterminal that captures EVERY keystroke, no Shell Integration required |
-| 5 | **Real-time secret masking** | API keys (Anthropic / OpenAI / Gemini / GitHub / AWS), JWT, Bearer, passwords, `.env` lines → `[MASKED_*]` before disk write |
-| 6 | **Rich sidebar UI** | Main CTA + live stats + recent activity feed (auto-refreshes on capture) |
-| 7 | **Vibe report webview** | Nickname / one-line roast / 6 competency bars / strengths · improvements / action items / X · LinkedIn share buttons |
-| 8 | **Language-adaptive analysis** | Auto-detects English vs. Korean prompts and emits the nickname & roast in that language (anything else falls back to English) |
-| 9 | **VS Code theme native** | All colors use `var(--vscode-*)` — dark/light auto-switches |
+| 2 | **IDE chat-panel history import** | Reads Claude Code IDE (`~/.claude/projects/<workspace>/*.jsonl`), VS Code chat panel (`chatSessions/`), GitHub Copilot Chat (`state.vscdb`), and Cursor (`state.vscdb`) — no proposed API required, runs on every Analyze |
+| 3 | **Interactive REPL tracking** | Line-by-line real-time parsing of `❯` user turns and `⏺` assistant turns inside REPLs |
+| 4 | **Own chat participant** | `@amigoodatvibe` chat participant for GUI-side prompt recording |
+| 5 | **🔒 100% Capture Terminal** | Optional opt-in pseudoterminal that captures EVERY keystroke, no Shell Integration required |
+| 6 | **Real-time secret masking** | API keys (Anthropic / OpenAI / Gemini / GitHub / AWS), JWT, Bearer, passwords, `.env` lines → `[MASKED_*]` before disk write |
+| 7 | **Rich sidebar UI** | Main CTA + live stats + recent activity feed (auto-refreshes on capture) |
+| 8 | **Vibe report webview** | Nickname / one-line roast / 6 competency bars / strengths · improvements / action items / X · LinkedIn share buttons |
+| 9 | **Language-adaptive analysis** | Auto-detects English vs. Korean prompts and emits the nickname & roast in that language (anything else falls back to English) |
+| 10 | **VS Code theme native** | All colors use `var(--vscode-*)` — dark/light auto-switches |
 
 ---
 

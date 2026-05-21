@@ -2,13 +2,13 @@
 
 # 🧠 AM I GOOD AT VIBE
 
-> **터미널에서 굴리는 AI CLI 대화를 로컬에서만 캡쳐해서, 당신의 코딩 바이브를 정리해 까주는 VS Code 익스텐션.**
+> **터미널 AI CLI 대화와 IDE 채팅 패널 히스토리까지 모두 로컬에서만 캡쳐해서, 당신의 코딩 바이브를 정리해 까주는 VS Code 익스텐션.**
 
 <p align="center">
   <img src="images/report-ko.png" alt="바이브 리포트 예시 — 병렬 에이전트 14발 동시발사 사범 (84/100)" width="720" />
 </p>
 
-AM I GOOD AT VIBE 는 VS Code 통합 터미널에서 굴리는 Claude Code / Codex / Gemini CLI / aider / Copilot CLI 대화, 코드 변경 내역, 프롬프트 입력을 조용히 기록합니다. 그리고 그 로그를 **본인 컴퓨터에서 도는 로컬 AI CLI** 에 넘겨서, SNS 에 그대로 박제할 수 있는 한 줄짜리 분석 리포트를 뽑아줍니다 — 닉네임, 매운맛 한 줄 평, 6개 역량 점수, 그리고 실제로 5분 안에 할 수 있는 액션 아이템까지.
+AM I GOOD AT VIBE 는 (1) VS Code 통합 터미널의 **AI CLI 대화** (Claude Code, Codex, Gemini CLI, aider, Copilot CLI — 실시간 캡쳐) 와 (2) **IDE 채팅 패널 히스토리** (Claude Code IDE, GitHub Copilot Chat, VS Code 채팅 패널, Cursor — 각 도구가 디스크에 남기는 세션 스토어를 직접 읽음), 그리고 코드 변경 내역과 프롬프트 입력을 모두 조용히 기록합니다. 그 로그를 **본인 컴퓨터에서 도는 로컬 AI CLI** 에 넘겨서, SNS 에 그대로 박제할 수 있는 한 줄짜리 분석 리포트를 뽑아줍니다 — 닉네임, 매운맛 한 줄 평, 6개 역량 점수, 그리고 실제로 5분 안에 할 수 있는 액션 아이템까지.
 
 **100% 로컬. 소스 코드는 절대 외부로 안 나갑니다.** ([캡쳐 경로 직접 확인 →](src/extension.ts) · [마스킹 정규식 직접 확인 →](src/util.ts))
 
@@ -35,14 +35,15 @@ AM I GOOD AT VIBE 는 VS Code 통합 터미널에서 굴리는 Claude Code / Cod
 | # | 기능 | 설명 |
 |---|---|---|
 | 1 | **터미널 AI CLI 캡쳐** | `claude`, `codex`, `gemini`, `aider`, `q chat`, `gh copilot`, `cody`, `cursor-agent` 자동 인식 |
-| 2 | **인터랙티브 REPL 추적** | `❯` (사용자 턴) / `⏺` (어시스턴트 턴) 단위로 줄 별 실시간 파싱 |
-| 3 | **자체 채팅 참여자** | `@amigoodatvibe` chat participant 로 GUI 쪽 프롬프트 기록 |
-| 4 | **🔒 100% Capture Terminal** | Shell Integration 없이도 모든 키 입력을 캡쳐하는 옵트인 유사 터미널 |
-| 5 | **실시간 시크릿 마스킹** | API 키 (Anthropic / OpenAI / Gemini / GitHub / AWS), JWT, Bearer 토큰, 비밀번호, `.env` 라인 → `[MASKED_*]` 로 치환된 뒤에만 디스크 기록 |
-| 6 | **사이드바 UI** | 메인 CTA + 라이브 통계 + 최근 활동 피드 (캡쳐 이벤트에 맞춰 자동 새로고침) |
-| 7 | **바이브 리포트 웹뷰** | 닉네임 / 한 줄 평 / 6개 역량 점수 막대 / 강점·개선점 / 액션 아이템 / X·LinkedIn 공유 버튼 |
-| 8 | **언어 적응형 분석** | 로그가 한국어 위주면 한국어, 영어 위주면 영어로 닉네임·로스트를 출력 (그 외 언어는 영어로 폴백) |
-| 9 | **VS Code 테마 호환** | 모든 색상이 `var(--vscode-*)` 토큰 — 다크/라이트 자동 전환 |
+| 2 | **IDE 채팅 패널 히스토리 import** | Claude Code IDE (`~/.claude/projects/<workspace>/*.jsonl`), VS Code 채팅 패널 (`chatSessions/`), GitHub Copilot Chat (`state.vscdb`), Cursor (`state.vscdb`) 의 디스크 세션 스토어를 직접 읽음 — proposed API 불필요, Analyze 누를 때마다 갱신 |
+| 3 | **인터랙티브 REPL 추적** | `❯` (사용자 턴) / `⏺` (어시스턴트 턴) 단위로 줄 별 실시간 파싱 |
+| 4 | **자체 채팅 참여자** | `@amigoodatvibe` chat participant 로 GUI 쪽 프롬프트 기록 |
+| 5 | **🔒 100% Capture Terminal** | Shell Integration 없이도 모든 키 입력을 캡쳐하는 옵트인 유사 터미널 |
+| 6 | **실시간 시크릿 마스킹** | API 키 (Anthropic / OpenAI / Gemini / GitHub / AWS), JWT, Bearer 토큰, 비밀번호, `.env` 라인 → `[MASKED_*]` 로 치환된 뒤에만 디스크 기록 |
+| 7 | **사이드바 UI** | 메인 CTA + 라이브 통계 + 최근 활동 피드 (캡쳐 이벤트에 맞춰 자동 새로고침) |
+| 8 | **바이브 리포트 웹뷰** | 닉네임 / 한 줄 평 / 6개 역량 점수 막대 / 강점·개선점 / 액션 아이템 / X·LinkedIn 공유 버튼 |
+| 9 | **언어 적응형 분석** | 로그가 한국어 위주면 한국어, 영어 위주면 영어로 닉네임·로스트를 출력 (그 외 언어는 영어로 폴백) |
+| 10 | **VS Code 테마 호환** | 모든 색상이 `var(--vscode-*)` 토큰 — 다크/라이트 자동 전환 |
 
 ---
 
