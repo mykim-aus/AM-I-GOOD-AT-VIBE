@@ -77,4 +77,4 @@ export const RAW_HISTORY_FILE = "raw_history.json";
 export const CONFIG_SECTION = "amigoodatvibe";
 export const EXTENSION_DISPLAY_NAME = "AM I GOOD AT VIBE";
 export const LOG_PREFIX = "[AM-I-GOOD-AT-VIBE]";
-export const VERSION = "0.1.0";
+export const VERSION = "0.1.2";

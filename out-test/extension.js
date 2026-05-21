@@ -205,7 +205,7 @@ function activate(ctx) {
     }));
     // Sidebar — rich webview-based UI (main CTA + stats + recent activity)
     const sidebarProvider = new sidebar_1.SidebarWebviewProvider(ctx, store, masker, workspaceRoot);
-    ctx.subscriptions.push(vscode.window.registerWebviewViewProvider(sidebar_1.SidebarWebviewProvider.viewType, sidebarProvider, { webviewOptions: { retainContextWhenHidden: true } }));
+    ctx.subscriptions.push(vscode.window.registerWebviewViewProvider(sidebar_1.SidebarWebviewProvider.viewType, sidebarProvider, { webviewOptions: { retainContextWhenHidden: true } }), sidebarProvider);
     // Safe flush on shutdown
     ctx.subscriptions.push({
         dispose: () => store.dispose(),

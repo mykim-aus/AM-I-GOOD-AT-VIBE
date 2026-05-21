@@ -228,7 +228,8 @@ export function activate(ctx: vscode.ExtensionContext): void {
       SidebarWebviewProvider.viewType,
       sidebarProvider,
       { webviewOptions: { retainContextWhenHidden: true } }
-    )
+    ),
+    sidebarProvider
   );
 
   // Safe flush on shutdown

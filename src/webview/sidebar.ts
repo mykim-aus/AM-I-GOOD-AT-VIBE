@@ -12,24 +12,39 @@
  */
 
 import * as vscode from "vscode";
+import * as fs from "fs";
+import * as os from "os";
+import * as path from "path";
 
 import { randomSessionId, escapeHtml } from "../util";
 import { Config } from "../config";
 import { log } from "../logger";
-import { collectExtensionChatTurns, type ExtractedTurn } from "../extensionCache";
+import {
+  collectExtensionChatTurns,
+  claudeCodeProjectDirName,
+  type ExtractedTurn,
+} from "../extensionCache";
 import type { HistoryStore, SecretMasker } from "../store/logStore";
 import { LogEntry, extractedTurnToLogEntry, VERSION } from "../types";
 import type { OutputLanguage } from "../prompt";
 
-export class SidebarWebviewProvider implements vscode.WebviewViewProvider {
+export class SidebarWebviewProvider
+  implements vscode.WebviewViewProvider, vscode.Disposable
+{
   public static readonly viewType = "amigoodatvibe.sidebar";
   private view?: vscode.WebviewView;
   private refreshTimer: NodeJS.Timeout | null = null;
-  /** Snapshot of this workspace's Claude Code chat turns. Loaded lazily on
-   *  first resolveWebviewView so the activity feed can show real history
-   *  without forcing the user to click Analyze. */
+  /** Snapshot of this workspace's Claude Code chat turns. Reloaded on
+   *  resolveWebviewView, on visibility change, and whenever the Claude Code
+   *  project dir changes (fs.watch). */
   private claudeCodeCache: ExtractedTurn[] = [];
-  private cacheLoaded = false;
+  private cacheReloadTimer: NodeJS.Timeout | null = null;
+  private cacheLoading = false;
+  /** Watches `~/.claude/projects/<dirname>/` (or its parent until it exists)
+   *  so new turns from the live Claude Code session appear in the activity
+   *  feed without the user having to toggle the sidebar. */
+  private claudeWatcher: fs.FSWatcher | null = null;
+  private claudeWatcherTarget: string | null = null;
 
   constructor(
     private readonly ctx: vscode.ExtensionContext,
@@ -49,20 +64,18 @@ export class SidebarWebviewProvider implements vscode.WebviewViewProvider {
     };
     view.webview.html = this.render();
 
-    // First-time lazy load of Claude Code turns. Done off the resolve frame
-    // (~1s for a workspace with hundreds of sessions) so the initial empty
-    // sidebar paints immediately, then refreshes once cache is populated.
-    if (!this.cacheLoaded) {
-      this.cacheLoaded = true;
-      setImmediate(() => this.loadClaudeCodeCache());
-    }
+    // Background-load Claude Code turns. The first pass paints an empty
+    // sidebar; once the cache populates, refresh() repaints with the real
+    // history. From then on the fs.watch hook keeps it live.
+    this.scheduleCacheReload(0);
+    this.startWatchingClaudeCodeDir();
 
     view.webview.onDidReceiveMessage(
       async (msg: { type?: string; cmd?: string; lang?: string }) => {
         if (msg.type === "exec" && typeof msg.cmd === "string") {
           vscode.commands.executeCommand(msg.cmd);
         } else if (msg.type === "refresh") {
-          this.refresh();
+          this.scheduleCacheReload(0);
         } else if (msg.type === "setLanguage" && typeof msg.lang === "string") {
           const valid: OutputLanguage[] = ["auto", "english", "korean"];
           if ((valid as string[]).includes(msg.lang)) {
@@ -74,7 +87,10 @@ export class SidebarWebviewProvider implements vscode.WebviewViewProvider {
     );
 
     view.onDidChangeVisibility(() => {
-      if (view.visible) this.refresh();
+      if (view.visible) {
+        this.scheduleCacheReload(0);
+        this.refresh();
+      }
     });
   }
 
@@ -92,24 +108,106 @@ export class SidebarWebviewProvider implements vscode.WebviewViewProvider {
     }
   }
 
-  /** Pull every Claude Code turn for this workspace and stash it in-memory
-   *  for the activity feed. Re-run is cheap (one second per ~4k turns) but we
-   *  cache so the user doesn't pay it on every redraw. */
-  private loadClaudeCodeCache(): void {
+  /** Debounced trigger for `reloadClaudeCodeCache`. Coalesces bursts of
+   *  filesystem events into a single reload. */
+  private scheduleCacheReload(delayMs: number = 400): void {
+    if (this.cacheReloadTimer) clearTimeout(this.cacheReloadTimer);
+    this.cacheReloadTimer = setTimeout(() => {
+      this.cacheReloadTimer = null;
+      void this.reloadClaudeCodeCache();
+    }, delayMs);
+  }
+
+  /** Re-read every Claude Code / IDE chat source for this workspace. Cheap
+   *  enough (~1s per 4k turns on disk) to run on every meaningful change. */
+  private async reloadClaudeCodeCache(): Promise<void> {
+    if (this.cacheLoading) {
+      // A reload is already in flight; queue one more so we don't miss the
+      // change that just arrived.
+      this.scheduleCacheReload();
+      return;
+    }
+    this.cacheLoading = true;
     try {
+      // Yield to the event loop so the UI never blocks on the synchronous read.
+      await new Promise<void>((resolve) => setImmediate(resolve));
       const report = collectExtensionChatTurns({
         workspaceFsPath: this.workspaceRoot,
         mask: (s) => this.masker.mask(s),
       });
+      const prev = this.claudeCodeCache.length;
       this.claudeCodeCache = report.turns;
-      log(
-        `[sidebar] loaded ${report.turns.length} chat turn(s) from disk; ` +
-        `Claude Code files: ${report.inspectedClaudeCodeFiles}`
-      );
+      if (prev !== report.turns.length) {
+        log(
+          `[sidebar] cache reloaded: ${prev} → ${report.turns.length} turn(s) ` +
+            `(Claude Code files: ${report.inspectedClaudeCodeFiles})`
+        );
+      }
       this.refresh();
     } catch (err) {
-      log("[sidebar] loadClaudeCodeCache failed:", String(err));
+      log("[sidebar] reloadClaudeCodeCache failed:", String(err));
+    } finally {
+      this.cacheLoading = false;
     }
+  }
+
+  /** Watch the Claude Code project dir for changes. If the dir doesn't exist
+   *  yet, watch its parent and rebind once it's created. */
+  private startWatchingClaudeCodeDir(): void {
+    const home = os.homedir();
+    const projectDir = path.join(
+      home,
+      ".claude",
+      "projects",
+      claudeCodeProjectDirName(this.workspaceRoot)
+    );
+
+    // If the project dir exists, watch it directly — that's where new turns land.
+    // Otherwise watch ~/.claude/projects (and ~/.claude / ~ if needed) so we
+    // can rebind as soon as Claude Code creates it.
+    let target = projectDir;
+    while (!fs.existsSync(target)) {
+      const parent = path.dirname(target);
+      if (parent === target) return; // walked up to root — give up silently
+      target = parent;
+    }
+    if (this.claudeWatcherTarget === target && this.claudeWatcher) return;
+    this.stopWatchingClaudeCodeDir();
+
+    try {
+      this.claudeWatcher = fs.watch(target, { persistent: false }, () => {
+        // If we were watching a parent (project dir didn't exist yet) and the
+        // real project dir has now appeared, rebind to it.
+        if (target !== projectDir && fs.existsSync(projectDir)) {
+          this.startWatchingClaudeCodeDir();
+        }
+        this.scheduleCacheReload();
+      });
+      this.claudeWatcherTarget = target;
+      log(`[sidebar] watching for Claude Code activity: ${target}`);
+    } catch (err) {
+      log("[sidebar] fs.watch failed for", target, "—", String(err));
+    }
+  }
+
+  private stopWatchingClaudeCodeDir(): void {
+    if (this.claudeWatcher) {
+      try { this.claudeWatcher.close(); } catch { /* ignore */ }
+      this.claudeWatcher = null;
+    }
+    this.claudeWatcherTarget = null;
+  }
+
+  dispose(): void {
+    if (this.refreshTimer) {
+      clearTimeout(this.refreshTimer);
+      this.refreshTimer = null;
+    }
+    if (this.cacheReloadTimer) {
+      clearTimeout(this.cacheReloadTimer);
+      this.cacheReloadTimer = null;
+    }
+    this.stopWatchingClaudeCodeDir();
   }
 
   private render(): string {
