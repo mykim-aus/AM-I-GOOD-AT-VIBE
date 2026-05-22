@@ -22,7 +22,7 @@ This is the **first public release**. I (the author) have only been able to veri
 |---|---|
 | macOS + VS Code 1.93+ + Claude Code v0.1 | ✅ Works |
 | Windows | ❓ Unverified (SQLite chat-cache import is disabled on Windows by design; capture itself should still work) |
-| Linux | ❓ Unverified |
+| Linux | ✅ Works |
 | Codex / Gemini / aider / Copilot / Cody / Cursor CLIs | ❓ Pattern matching exists but not tested end-to-end |
 | Cursor IDE | ❓ Chat-cache paths defined but unverified |
 
